@@ -12,6 +12,9 @@ class NexoraEngine:
         if "siapa kamu" in message:
             return "Saya Nexora Engine, mesin AI eksperimen milik Nexora."
 
+        if "siapa penciptamu" in message:
+            return "Saya diciptakan dan dikembangkan oleh Nexora."
+
         if "nexora" in message:
             return "Nexora adalah teknologi yang sedang saya pelajari."
 
