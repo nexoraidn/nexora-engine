@@ -17,6 +17,7 @@ class NexoraTextGenerator:
 
         generated_ids = token_ids.copy()
         eos_id = self.tokenizer.vocab.get("<EOS>")
+        recent_pairs = set()
 
         for step in range(max_tokens):
             last_token_id = generated_ids[-1]
@@ -28,9 +29,12 @@ class NexoraTextGenerator:
             if next_token_id == eos_id:
                 break
 
-            if next_token_id == last_token_id:
+            pair = (last_token_id, next_token_id)
+
+            if pair in recent_pairs:
                 break
 
+            recent_pairs.add(pair)
             generated_ids.append(next_token_id)
 
         return self.tokenizer.decode(generated_ids)
@@ -50,7 +54,10 @@ if __name__ == "__main__":
     processor = NexoraDataProcessor(tokenizer)
     dataset = processor.build_dataset(data)
 
-    model = NexoraModel(vocab_size=len(tokenizer.vocab))
+    model = NexoraModel(
+        vocab_size=len(tokenizer.vocab)
+    )
+
     trainer = NexoraTrainer(model, tokenizer)
 
     trainer.train(
