@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+model.py.
+*.save
+*_backup.py
+*_backup_before_edit.py
+*_working.py

@@ -1,10 +1,17 @@
 class NexoraTrainer:
-    def __init__(self, model):
+    def __init__(self, model, tokenizer=None):
         self.model = model
+        self.tokenizer = tokenizer
 
     def train(self, dataset, epochs=10, learning_rate=0.01):
+        eos_id = None
+
+        if self.tokenizer is not None:
+            eos_id = self.tokenizer.vocab.get("<EOS>")
+
         for epoch in range(epochs):
             total_loss = 0.0
+            total_steps = 0
 
             for item in dataset:
                 token_ids = item["input_ids"]
@@ -12,21 +19,34 @@ class NexoraTrainer:
                 if not token_ids:
                     continue
 
-                # Target sederhana untuk tahap awal:
-                # setiap token dianggap sebagai target positif.
-                targets = [1] * len(token_ids)
+                for i in range(len(token_ids)):
+                    token_id = token_ids[i]
 
-                loss = self.model.train_step(
-                    token_ids,
-                    targets,
-                    learning_rate
-                )
+                    if i + 1 < len(token_ids):
+                        target_id = token_ids[i + 1]
+                    elif eos_id is not None:
+                        target_id = eos_id
+                    else:
+                        target_id = token_ids[i]
 
-                total_loss += loss
+                    loss = self.model.train_step(
+                        token_id,
+                        target_id,
+                        learning_rate
+                    )
+
+                    total_loss += loss
+                    total_steps += 1
+
+            average_loss = (
+                total_loss / total_steps
+                if total_steps > 0
+                else 0.0
+            )
 
             print(
                 f"Epoch {epoch + 1}/{epochs} - "
-                f"Loss: {total_loss}"
+                f"Loss: {average_loss:.6f}"
             )
 
 
@@ -52,7 +72,7 @@ if __name__ == "__main__":
         vocab_size=len(tokenizer.vocab)
     )
 
-    trainer = NexoraTrainer(model)
+    trainer = NexoraTrainer(model, tokenizer)
 
     trainer.train(
         dataset,

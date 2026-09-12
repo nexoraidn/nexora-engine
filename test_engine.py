@@ -35,7 +35,7 @@ model = NexoraModel(
 )
 
 print("\n[3] Initial Prediction:")
-print(model.predict(dataset[0]["input_ids"]))
+print(model.predict_next(dataset[0]["input_ids"][-1]))
 
 # 4. Trainer
 trainer = NexoraTrainer(model)
@@ -49,6 +49,6 @@ trainer.train(
 
 # 5. Test setelah training
 print("\n[5] Prediction After Training:")
-print(model.predict(dataset[0]["input_ids"]))
+print(model.predict_next(dataset[0]["input_ids"][-1]))
 
 print("\n=== TEST SELESAI ===")
